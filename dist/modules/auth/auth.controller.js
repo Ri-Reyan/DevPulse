@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { authService } from "./auth.service.js";
-import responseHandler from "../../utils/response";
+import responseHandler from "../../utils/response.js";
 import genAccessToken from "../../utils/token.js";
 import { config } from "../../config/secretEnvs.js";
 const SignUp = expressAsyncHandler(async (req, res) => {
