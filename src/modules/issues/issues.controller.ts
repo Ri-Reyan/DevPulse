@@ -89,9 +89,33 @@ const updateIssue = expressAsyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+const deleteIssue = expressAsyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userRole = (req as any).user?.role;
+
+  if (!userRole) {
+    res.status(401);
+    throw new Error("Unauthorized");
+  }
+
+  const result = await issuesService.deleteIssueFromDB(id as string, userRole);
+
+  if (result.errorStatus) {
+    res.status(result.errorStatus);
+    throw new Error(result.message);
+  }
+
+  responseHandler(res, {
+    statusCode: 200,
+    success: true,
+    message: "Issue deleted successfully",
+  });
+});
+
 export const issuseController = {
   createIssue,
   getAllIssues,
   getSingleIssue,
   updateIssue,
+  deleteIssue,
 };
