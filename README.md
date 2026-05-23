@@ -237,5 +237,3 @@ npm run dev
 ```
 
 ---
-
-If you want, I can also generate a `docs/` folder with separate architecture and API reference files.
