@@ -34,7 +34,7 @@ const FindUserFromDb = async (payload: any) => {
     [email],
   );
 
-  if (user.row.length == 0) {
+  if (user.rows.length == 0) {
     throw new Error("Invalid credentials!");
   }
 
