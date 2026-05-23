@@ -42,7 +42,27 @@ const getAllIssues = expressAsyncHandler(
   },
 );
 
+const getSingleIssue = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const data = await issuesService.getSingleIssueFromDB(id as string);
+
+    if (!data) {
+      res.status(404);
+      throw new Error("Requested resource does not exist");
+    }
+
+    responseHandler(res, {
+      statusCode: 200,
+      success: true,
+      data,
+    });
+  },
+);
+
 export const issuseController = {
   createIssue,
   getAllIssues,
+  getSingleIssue,
 };

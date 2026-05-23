@@ -71,7 +71,7 @@ const getAllIssuesFromDB = async (filters: {
   return result;
 };
 
-const getSingleIssueFromDB = async (id: string) => {
+const getSingleIssueFromDB = async (id: number) => {
   const issueQuery = `SELECT id, title, description, type, status, reporter_id, created_at, updated_at FROM issues WHERE id = $1`;
   const { rows: issues } = await pool.query(issueQuery, [id]);
 
