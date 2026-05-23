@@ -1,11 +1,11 @@
 import { Pool } from "pg";
-import { config } from "./secretEnvs";
+import { config } from "./secretEnvs.js";
 export const pool = new Pool({
-    connectionString: config.neon_secret,
+  connectionString: config.neon_secret,
 });
 const initDB = async () => {
-    try {
-        await pool.query(`
+  try {
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       name VARCHAR(30) NOT NULL,
@@ -14,7 +14,7 @@ const initDB = async () => {
       role VARCHAR(20) CHECK(role in ('contributor', 'maintainer')) DEFAULT 'contributor',
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW())`);
-        await pool.query(`
+    await pool.query(`
         CREATE TABLE IF NOT EXISTS issues (
         id SERIAL PRIMARY KEY,
         title VARCHAR(150) NOT NULL,
@@ -25,11 +25,10 @@ const initDB = async () => {
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
         )`);
-        console.log("Database connected successfully");
-    }
-    catch (error) {
-        console.log(`Database connection failed error: ${error.message} `);
-    }
+    console.log("Database connected successfully");
+  } catch (error) {
+    console.log(`Database connection failed error: ${error.message} `);
+  }
 };
 export default initDB;
 //# sourceMappingURL=db.js.map

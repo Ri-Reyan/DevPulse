@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { issuseController } from "./issues.controller";
-import { protect } from "../../middlewares/auth.middleware";
+import { issuseController } from "./issues.controller.js";
+import { protect } from "../../middlewares/auth.middleware.js";
 const router = Router();
 router.post("/", protect, issuseController.createIssue);
 router.get("/", issuseController.getAllIssues);
