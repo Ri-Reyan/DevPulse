@@ -61,8 +61,37 @@ const getSingleIssue = expressAsyncHandler(
   },
 );
 
+const updateIssue = expressAsyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const currentUser = (req as any).user;
+
+  if (!currentUser) {
+    res.status(401);
+    throw new Error("Unauthorized");
+  }
+
+  const result = await issuesService.updateIssueInDB(
+    id as string,
+    currentUser,
+    req.body,
+  );
+
+  if (result.errorStatus) {
+    res.status(result.errorStatus);
+    throw new Error(result.message);
+  }
+
+  responseHandler(res, {
+    statusCode: 200,
+    success: true,
+    message: "Issue updated successfully",
+    data: result.data,
+  });
+});
+
 export const issuseController = {
   createIssue,
   getAllIssues,
   getSingleIssue,
+  updateIssue,
 };

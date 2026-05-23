@@ -71,7 +71,7 @@ const getAllIssuesFromDB = async (filters: {
   return result;
 };
 
-const getSingleIssueFromDB = async (id: number) => {
+const getSingleIssueFromDB = async (id: string) => {
   const issueQuery = `SELECT id, title, description, type, status, reporter_id, created_at, updated_at FROM issues WHERE id = $1`;
   const { rows: issues } = await pool.query(issueQuery, [id]);
 
@@ -90,8 +90,71 @@ const getSingleIssueFromDB = async (id: number) => {
   };
 };
 
+const updateIssueInDB = async (
+  id: string,
+  user: { id: number; role: string },
+  payload: {
+    title?: string;
+    description?: string;
+    type?: string;
+    status?: string;
+  },
+) => {
+  const checkQuery = `SELECT * FROM issues WHERE id = $1`;
+  const { rows: issues } = await pool.query(checkQuery, [id]);
+
+  if (issues.length === 0) {
+    return { errorStatus: 404, message: "Requested resource does not exist" };
+  }
+
+  const currentIssue = issues[0];
+
+  if (user.role === "contributor") {
+    if (currentIssue.reporter_id !== user.id) {
+      return {
+        errorStatus: 403,
+        message: "Forbidden: You can only update your own issues",
+      };
+    }
+
+    if (currentIssue.status !== "open") {
+      return {
+        errorStatus: 409,
+        message: "Conflict: Cannot update an issue that is not open",
+      };
+    }
+  }
+
+  const fields = ["title", "description", "type", "status"];
+  const updateClauses: string[] = [];
+  const queryValues: any[] = [];
+
+  fields.forEach((field) => {
+    if (payload[field as keyof typeof payload] !== undefined) {
+      queryValues.push(payload[field as keyof typeof payload]);
+      updateClauses.push(`${field} = $${queryValues.length}`);
+    }
+  });
+
+  if (updateClauses.length === 0) {
+    return {
+      errorStatus: 400,
+      message: "Bad Request: No fields provided for update",
+    };
+  }
+
+  updateClauses.push(`updated_at = NOW()`);
+
+  queryValues.push(id);
+  const mainQuery = `UPDATE issues SET ${updateClauses.join(", ")} WHERE id = $${queryValues.length} RETURNING *`;
+
+  const { rows: updatedRows } = await pool.query(mainQuery, queryValues);
+  return { success: true, data: updatedRows[0] };
+};
+
 export const issuesService = {
   createIssueIntoDb,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
+  updateIssueInDB,
 };
