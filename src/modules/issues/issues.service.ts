@@ -152,9 +152,31 @@ const updateIssueInDB = async (
   return { success: true, data: updatedRows[0] };
 };
 
+const deleteIssueFromDB = async (id: string, userRole: string) => {
+  if (userRole !== "maintainer") {
+    return {
+      errorStatus: 403,
+      message: "Forbidden: Only maintainers can delete issues",
+    };
+  }
+
+  const checkQuery = `SELECT id FROM issues WHERE id = $1`;
+  const { rows } = await pool.query(checkQuery, [id]);
+
+  if (rows.length === 0) {
+    return { errorStatus: 404, message: "Requested resource does not exist" };
+  }
+
+  const deleteQuery = `DELETE FROM issues WHERE id = $1`;
+  await pool.query(deleteQuery, [id]);
+
+  return { success: true };
+};
+
 export const issuesService = {
   createIssueIntoDb,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
   updateIssueInDB,
+  deleteIssueFromDB,
 };
